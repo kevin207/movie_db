@@ -12,7 +12,7 @@ export default function Loading() {
         height,
         width,
       }}
-      className="absolute flex-row justify-center items-center"
+      className="absolute flex-row justify-center items-center z-30"
     >
       <Progress.CircleSnail
         thickness={12}

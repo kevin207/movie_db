@@ -48,7 +48,6 @@ export default function HomeScreen() {
 
     if (data && data.results) {
       setUpcoming(data.results);
-      setLoading(false);
     }
   };
   const getTopRated = async () => {
@@ -56,7 +55,6 @@ export default function HomeScreen() {
 
     if (data && data.results) {
       setTop(data.results);
-      setLoading(false);
     }
   };
 
@@ -69,7 +67,7 @@ export default function HomeScreen() {
   return (
     <View className="flex-1 bg-neutral-900">
       <SafeAreaView className={ios ? "-mb-2" : "mb-3"}>
-        <StatusBar style="auto" />
+        <StatusBar style="light" />
 
         {/* TOP CONTENT */}
         <View className="flex-row justify-between items-center mx-4 mt-4 mb-6">

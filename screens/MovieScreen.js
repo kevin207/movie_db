@@ -19,7 +19,13 @@ import { HeartIcon } from "react-native-heroicons/solid";
 // COMPONENTS
 import Cast from "../components/cast";
 import MovieList from "../components/movieList";
-import { image500 } from "../api/movieDb";
+import {
+  fetchMovieCredits,
+  fetchMovieDetails,
+  fetchMovieSimiliar,
+  image500,
+  nullImage,
+} from "../api/movieDb";
 
 var { width, height } = Dimensions.get("window");
 const ios = Platform.OS == "ios";
@@ -27,17 +33,42 @@ const topMargin = ios ? "" : "mt-3";
 
 export default function MovieScreen() {
   const { params: item } = useRoute();
-  const [cast, setCast] = useState([1, 2, 3, 4, 5]);
-  const [similiar, setSimiliar] = useState([1, 2, 3, 4, 5]);
+  const [detail, setDetail] = useState({});
+  const [cast, setCast] = useState([]);
+  const [similar, setSimilar] = useState([]);
   const [favorite, setFavourite] = useState(false);
-
-  let movieName = "Spiderman 2: Coming Home";
+  const [loading, setLoading] = useState(true);
 
   // NAVIGATION
   const navigation = useNavigation();
 
+  const getMovieDetail = async (id) => {
+    const data = await fetchMovieDetails(id);
+
+    if (data) {
+      setDetail(data);
+      setLoading(false);
+    }
+  };
+  const getMovieCredits = async (id) => {
+    const data = await fetchMovieCredits(id);
+
+    if (data && data.cast) {
+      setCast(data.cast);
+    }
+  };
+  const getSimilarMovie = async (id) => {
+    const data = await fetchMovieSimiliar(id);
+
+    if (data && data.results) {
+      setSimilar(data.results);
+    }
+  };
+
   useEffect(() => {
-    console.log(item);
+    getMovieDetail(item.id);
+    getMovieCredits(item.id);
+    getSimilarMovie(item.id);
   }, []);
 
   return (
@@ -76,7 +107,7 @@ export default function MovieScreen() {
         <View>
           <Image
             source={{
-              uri: image500(item.poster_path) || nullImage,
+              uri: image500(item?.poster_path) || nullImage,
             }}
             style={{
               width: width,
@@ -105,47 +136,45 @@ export default function MovieScreen() {
       >
         {/* TITLE */}
         <Text className="text-white text-4xl font-bold text-center tracking-wide">
-          {item.title}
+          {item?.title}
         </Text>
 
         {/* STATUS */}
-        <Text className="text-neutral-400 text-center text-lg font-semibold">
-          Released ꞏ 2020 ꞏ 120min
-        </Text>
+        {!loading && (
+          <Text className="text-neutral-400 text-center text-lg font-semibold">
+            {detail?.status} ꞏ {detail?.release_date?.split("-")[0]} ꞏ{" "}
+            {detail?.runtime + " min"}
+          </Text>
+        )}
 
         {/* GENRE */}
         <View className="flex-row justify-center mx-4 space-x-1 items-center">
-          <Text className="text-neutral-400 text-center text-lg font-semibold">
-            Action ꞏ
-          </Text>
-          <Text className="text-neutral-400 text-center text-lg font-semibold">
-            Thrill ꞏ
-          </Text>
-          <Text className="text-neutral-400 text-center text-lg font-semibold">
-            Horror
-          </Text>
+          {detail?.genres?.map((genre, index) => {
+            let showDot = index + 1 != detail.genres.length;
+            return (
+              <Text
+                key={index}
+                className="text-neutral-400 text-center text-lg font-semibold"
+              >
+                {genre?.name} {showDot ? "ꞏ" : null}
+              </Text>
+            );
+          })}
         </View>
 
         {/* DESCRIPTION */}
         <Text className="text-neutral-400 mx-4 tracking-wide text-justify">
-          Peter Parker is an outcast high schooler abandoned by his parents as a
-          boy, leaving him to be raised by his Uncle Ben and Aunt May. Like most
-          teenagers, Peter is trying to figure out who he is and how he got to
-          be the person he is today. As Peter discovers a mysterious briefcase
-          that belonged to his father, he begins a quest to understand his
-          parents' disappearance – leading him directly to Oscorp and the lab of
-          Dr. Curt Connors, his father's former partner. As Spider-Man is set on
-          a collision course with Connors' alter ego, The Lizard, Peter will
-          make life-altering choices to use his powers and shape his destiny to
-          become a hero.
+          {item.overview}
         </Text>
       </View>
 
       {/* CAST */}
-      <Cast cast={cast} navigation={navigation} />
+      {cast.length > 0 && <Cast cast={cast} navigation={navigation} />}
 
       {/* SIMILIAR MOVIES */}
-      {/* <MovieList title="Similiar Movies" data={similiar} hideSeeAll={true} /> */}
+      {similar.length > 0 && cast.length > 0 && (
+        <MovieList title="Similar Movies" data={similar} hideSeeAll={true} />
+      )}
     </ScrollView>
   );
 }

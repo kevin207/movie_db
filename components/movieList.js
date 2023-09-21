@@ -19,7 +19,7 @@ export default function MovieList({ title, data, hideSeeAll }) {
   const navigation = useNavigation();
 
   return (
-    <View className="mb-6 space-y-4">
+    <View className="mb-8 space-y-4">
       {/* TITLE & SEE ALL */}
       <View className="mx-4 flex-row justify-between items-center">
         <Text className="text-2xl text-white">{title}</Text>

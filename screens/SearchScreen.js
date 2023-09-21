@@ -8,24 +8,49 @@ import {
   TouchableWithoutFeedback,
   Image,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { XMarkIcon } from "react-native-heroicons/outline";
 import { useNavigation } from "@react-navigation/native";
+import { debounce } from "lodash";
+import { image185, nullImage, searchMovie } from "../api/movieDb";
+import Loading from "../components/loading";
 
 var { width, height } = Dimensions.get("window");
-let movieName = "Spiderman 2: Coming Home";
-
 export default function SearchScreen() {
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState([]);
+
   // NAVIGATION
   const navigation = useNavigation();
-  const [result, setResult] = useState([1, 2, 3, 4]);
+
+  const handleSearch = (value) => {
+    if (value && value.length > 2) {
+      setLoading(true);
+      searchMovie({
+        query: value,
+        include_adult: "false",
+        language: "en-US",
+        page: "1",
+      }).then((data) => {
+        setLoading(false);
+        if (data && data.results) {
+          setResult(data.results);
+        }
+      });
+    } else {
+      setResult([]);
+      setLoading(false);
+    }
+  };
+  const handleTextDebounce = useCallback(debounce(handleSearch, 400), []);
 
   return (
     <SafeAreaView className="bg-neutral-900 flex-1">
       {/* SEARCH BAR */}
       <View className="mx-4 my-3 flex-row justify-between items-center border border-neutral-500 rounded-full">
         <TextInput
+          onChangeText={handleTextDebounce}
           placeholder="Search Movie"
           placeholderTextColor={"lightgray"}
           className="pl-4 text-base font-semibold text-white w-[80%]"
@@ -42,7 +67,9 @@ export default function SearchScreen() {
       </View>
 
       {/* SEARCH RESULT */}
-      {result.length > 0 ? (
+      {loading ? (
+        <Loading />
+      ) : result.length > 0 ? (
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 15 }}
@@ -68,12 +95,14 @@ export default function SearchScreen() {
                         height: height * 0.3,
                       }}
                       className="rounded-3xl"
-                      source={require("../assets/movie/movie2.jpg")}
+                      source={{
+                        uri: image185(item?.poster_path) || nullImage,
+                      }}
                     />
                     <Text className="text-neutral-300 ml-1">
-                      {movieName.length > 25
-                        ? movieName.slice(0, 25) + "..."
-                        : movieName}
+                      {item?.title.length > 25
+                        ? item?.title.slice(0, 25) + "..."
+                        : item?.title}
                     </Text>
                   </View>
                 </TouchableWithoutFeedback>
@@ -84,7 +113,7 @@ export default function SearchScreen() {
       ) : (
         <View className="flex-row justify-center">
           <Image
-            className="h-96 w-96 mt-10"
+            className="h-96 w-96 mt-20"
             source={require("../assets/empty.png")}
           />
         </View>
