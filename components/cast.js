@@ -3,7 +3,6 @@ import React from "react";
 import { image185, nullAvatar } from "../api/movieDb";
 
 export default function Cast({ cast, navigation }) {
-
   return (
     <View className="my-4">
       <Text className="text-white text-2xl mx-4 mb-3">Top Cast</Text>
@@ -21,7 +20,7 @@ export default function Cast({ cast, navigation }) {
                 key={index}
                 className="mr-4 items-center"
                 onPress={() => {
-                  navigation.navigate("Person", person);
+                  navigation.push("Person", person);
                 }}
               >
                 <View className="overflow-hidden rounded-full h-20 w-20 item-center border border-neutral-500">

@@ -135,7 +135,7 @@ export default function MovieScreen() {
         className="space-y-3"
       >
         {/* TITLE */}
-        <Text className="text-white text-4xl font-bold text-center tracking-wide">
+        <Text className="text-white text-4xl mx-4 font-bold text-center tracking-wide">
           {item?.title}
         </Text>
 

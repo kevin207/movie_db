@@ -100,8 +100,8 @@ export default function SearchScreen() {
                       }}
                     />
                     <Text className="text-neutral-300 ml-1">
-                      {item?.title.length > 25
-                        ? item?.title.slice(0, 25) + "..."
+                      {item?.title.length > 22
+                        ? item?.title.slice(0, 22) + "..."
                         : item?.title}
                     </Text>
                   </View>
@@ -113,7 +113,7 @@ export default function SearchScreen() {
       ) : (
         <View className="flex-row justify-center">
           <Image
-            className="h-96 w-96 mt-20"
+            className="h-96 w-96 mt-30"
             source={require("../assets/empty.png")}
           />
         </View>
